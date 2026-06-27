@@ -14,87 +14,131 @@ The alias will be removed in v2.0. Migrate to the new name at your earliest conv
 
 **Boilerplater** is an automated, agent-driven repository designed to enforce strict architectural standards, manage compliance rules, and systematically reduce technical debt across all your C++/JUCE projects.
 
-By leveraging Antigravity Agent Skills, Boilerplater acts as a **Read-Only Compliance Auditor**. It scans your codebase, finds architectural violations, and generates comprehensive markdown reports suggesting exactly how to replace "hacky" code with approved boilerplate patterns.
+Boilerplater acts as a **Read-Only Compliance Auditor**. It scans your codebase, finds architectural violations, and generates comprehensive markdown reports suggesting exactly how to replace "hacky" code with approved boilerplate patterns.
 
 ---
 
-## 🚀 How to Install / Register
+## What's New in v1.0
 
-To make the Boilerplater skills available to your agent across all workspaces, you need to register this directory in your global Antigravity configuration.
+v1.0 transforms the v0 single-skill audit into a **modular multi-agent governance layer**:
 
-1. Ensure the global config directory exists:
-   `~/.gemini/config/`
-2. Create or edit `~/.gemini/config/skills.json` to include the absolute path to the `skills/` folder in this repository:
-   ```json
-   {
-     "entries": [
-       { "path": "/Users/indraqadarsih/Downloads/TERRACE/Boilerplater/skills" }
-     ]
-   }
-   ```
-*(Note: If you move this repository, you must update the path in `skills.json`)*.
+- **24 rules** across 4 domains (`language`, `blessed`, `names`, `layout`), each with explicit IDs (`lang-`, `blessed-`, `names-`, `layout-` prefixes)
+- **Two-dimensional verdict:** 5-tier scale (`PASS` / `PATCH` / `REFACTOR` / `MAJOR` / `REDESIGN`) computed from severity score + architectural triggers (god_object, circular_ownership, multiple_sources_of_truth, state_duplication, hidden_mutation, cyclic_dependency)
+- **Severity tiers:** critical / major / minor / advisory / suggestion with per-rule overrides
+- **Confidence scoring:** high / medium / low per finding
+- **Dynamic domain discovery:** orchestrator scans `rules/*` at runtime — adding `rules/dsp/` or `rules/audio-thread/` requires no orchestrator changes
+- **Conditional adoption subagent:** invoked only on critical/major findings (~10% of audits) — saves context window
+- **Contract abstraction:** `contracts/` indirection layer hides CAROL symlink details from rule logic
+- **Vendor-agnostic core:** markdown + pure YAML, no proprietary syntax
+- **Capabilities extension point:** `capabilities/` reserved for SARIF, LSP, semantic-index, vector-cache
 
----
-
-## 🛠️ How to Run
-
-Because Boilerplater is built on the Antigravity Skills framework, running it is as simple as talking to your AI agent in any of your project workspaces.
-
-**1. Navigate to your project**
-Open your target codebase (e.g., `ADDA-M`) in your IDE and launch the Antigravity chat.
-
-**2. Invoke the Agent**
-Send a prompt asking the agent to act as the compliance checker. For example:
-> *"Run the `jreng_compliance_checker` skill on this project."*
->
-> or
->
-> *"Please audit my codebase using the Boilerplater compliance agent."*
-
-**3. Review the Output**
-The agent will automatically discover the skill instructions from this repository, scan your active codebase (in strict read-only mode), and generate a `codebase_analysis.md` artifact.
+See [SPEC.md](./SPEC.md) for full specification, [ARCHITECTURE.md](./ARCHITECTURE.md) for system map.
 
 ---
 
-## Vendor-Agnostic Usage
+## How to Use
 
-Boilerplater's core is **vendor-agnostic**. The audit skill is markdown, portable across any LLM tool that reads markdown:
+Boilerplater's audit skill is a markdown file (`skills/compliance/audit.md`). Load it into any LLM tool that can read markdown, point it at your codebase, and the orchestrator takes over.
 
 ### Claude Code
 ```
 @skills/compliance/audit.md
 ```
 
-### Gemini
-```
-Load skills/compliance/audit.md as context, then run.
-```
+### Gemini / Antigravity
+Load `skills/compliance/audit.md` as context, then run.
 
 ### ChatGPT / Codex
-```
-Upload or paste skills/compliance/audit.md, then run.
-```
+Upload or paste `skills/compliance/audit.md`, then run.
 
 ### Cursor / Roo / Cline
-```
-Reference skills/compliance/audit.md from your project's `.cursorrules` or equivalent.
-```
+Reference `skills/compliance/audit.md` from your project's `.cursorrules` or equivalent.
 
-No vendor is "first-class" — all are equally supported.
+No vendor is "first-class" — all are equally supported. (Legacy note: v0 used Antigravity's `~/.gemini/config/skills.json` registration; this is no longer required.)
 
----
+### Invocation Example
+> *"Run Boilerplater compliance audit on this codebase."*
+>
+> or
+>
+> *"Audit this project using `compliance_orchestrator`."*
 
-## 📄 The Output Report
-
-The generated `codebase_analysis.md` will contain:
-1. **Categorized Violations:** Broken down into `JRENG`, `BLESSED`, and `NAMES` rules.
-2. **Code Snippets:** A side-by-side comparison of the existing "hacky" code vs. the required "compliant boilerplate."
-3. **Curated Adoptions:** If the agent found a novel problem, it will search the web/GitHub, adapt the findings to pass your internal rules, and present them here.
-4. **ROI (Return on Investment):** A breakdown of the cognitive load reduced and bugs prevented by the refactoring.
-5. **Action Statement:** A final verdict classifying the work as either a **"REDESIGN"** (deep architectural flaws) or a **"5 MINS CHECKLIST DIFF"** (superficial cleanups).
+The agent will discover `skills/compliance/audit.md`, scan your active codebase in strict read-only mode, and write the report to `reports/history/YYYY-MM-DD/codebase_analysis.md`.
 
 ---
 
-## ⚙️ How it Works Under the Hood
+## The Output Report
 
-See [Boilerplater.md](./Boilerplater.md) for detailed information on the repository's core read-only philosophy, and why executing these tasks on Google's native agentic models provides the highest accuracy and safety.
+The audit report (`reports/history/YYYY-MM-DD/codebase_analysis.md`) contains:
+
+1. **Summary table:** Files scanned, total findings, severity score, architectural triggers fired, verdict, confidence coverage
+2. **Findings by severity:** Histogram across critical / major / minor / advisory / suggestion
+3. **Findings detail:** For each finding — rule ID, severity, confidence, location, evidence snippet, reason, expected pattern, suggested fix, source refs
+4. **Architectural triggers:** god_object, circular_ownership, multiple_sources_of_truth, state_duplication, hidden_mutation, cyclic_dependency (any fires → REDESIGN)
+5. **Adoption suggestions:** Only when triggered by critical/major findings (~10% of audits)
+6. **Baseline delta:** Comparison against `reports/latest.json` (user-managed baseline pointer)
+7. **ROI estimate:** Per-verdict remediation effort estimate
+
+Verdict scale:
+
+| Verdict | Trigger |
+|---|---|
+| PASS | score=0 AND no triggers |
+| PATCH | score≤10 AND no triggers |
+| REFACTOR | 10<score≤30 AND no triggers |
+| MAJOR | score>30 AND no triggers |
+| REDESIGN | any trigger OR score>50 |
+
+---
+
+## Directory Structure
+
+```
+Boilerplater/
+├── SPEC.md                          # Full specification (v1)
+├── PLAN.md                          # Implementation plan (6 phases)
+├── ARCHITECTURE.md                  # System map (descriptive)
+├── README.md                        # This file
+├── Boilerplater.md                  # Master philosophy
+├── contracts/                       # Contract abstraction (symlinks to CAROL docs)
+│   ├── JRENG-CODING-STANDARD.md
+│   ├── MANIFESTO.md
+│   └── NAMES.md
+├── rules/                           # Rule Engine (24 rules, 4 domains)
+│   ├── language/  (7 rules: lang-*)
+│   ├── blessed/   (7 rules: blessed-*)
+│   ├── names/     (7 rules: names-*)
+│   └── layout/    (3 rules: layout-*)
+├── skills/
+│   ├── compliance/                  # Orchestrator + 4 specialists
+│   │   ├── audit.md                 # compliance_orchestrator
+│   │   ├── language.md
+│   │   ├── blessed.md
+│   │   ├── names.md
+│   │   └── layout.md
+│   ├── adoption/                    # Conditional subagent
+│   │   ├── discover.md
+│   │   ├── curate.md
+│   │   └── filter.md
+│   └── jreng_compliance/            # v0 alias (deprecated, removed in v2.0)
+│       ├── SKILL.md -> ../compliance/audit.md
+│       └── SKILL.v0-deprecated.md
+├── capabilities/                    # Extension point (stub)
+│   └── README.md
+├── templates/                       # Output templates
+│   ├── report.md
+│   ├── patch.md
+│   ├── refactor.md
+│   └── redesign.md
+├── reports/                         # Audit output (gitignored)
+│   ├── latest.json
+│   └── history/
+└── examples/
+    └── sample-report.md
+```
+
+---
+
+## How it Works Under the Hood
+
+See [Boilerplater.md](./Boilerplater.md) for the repository's core read-only philosophy, and [ARCHITECTURE.md](./ARCHITECTURE.md) for the system map.
