@@ -17,10 +17,19 @@ v1 introduces a modular multi-agent architecture with explicit rule IDs, severit
 
 ### 1. Contracts Layer
 
-`contracts/` is the indirection layer over CAROL framework docs. Three symlinks:
+`contracts/` is the indirection layer over CAROL framework docs. Six symlinks (3 legacy C++ + 3 v1.1-preview JS/TS):
+
+**v1 stable (C++ rules):**
 - `contracts/JRENG-CODING-STANDARD.md` → `~/Documents/carol-main/JRENG-CODING-STANDARD.md`
 - `contracts/MANIFESTO.md` → `~/Documents/carol-main/MANIFESTO.md`
 - `contracts/NAMES.md` → `~/Documents/carol-main/NAMES.md`
+
+**v1.1 preview (JS/TS rules — inert, staged for activation):**
+- `contracts/CODING-CONTRACT.md` → Vortex Realm JWT-2 universal JS/TS rules (27 rules: U1–U6 universal, LAW 1–4 scripts, F1–F7 functions, FL1–FL10 frontend)
+- `contracts/FRONTEND_LAW_VAULT.md` → Vortex Realm JWT-2 React+CSS laws (11 laws: LAW 0–10)
+- `contracts/BASELINE_LAWS_INDEX.md` → Vortex Realm JWT-2 baseline law index (6 law systems)
+
+These v1.1 contracts are inert — no v1 rule or skill references them. They exist as the contract abstraction layer being staged forward per SPEC §6.2. **Activation trigger:** When `rules/js/` is added (v1.1), these contracts will be referenced by `source_refs` per the established schema.
 
 The orchestrator and rule files reference ONLY `contracts/` paths. The implementation detail (symlink, copy, submodule) is hidden from rule logic.
 
