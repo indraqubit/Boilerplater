@@ -1,0 +1,52 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: lang-no-anonymous-namespace
+title: "No Anonymous Namespaces"
+domain: language
+
+severity_default: major
+severity_rationale: |
+  JRENG-CODING-STANDARD.md §323-343 explicitly forbids anonymous namespaces.
+  They hide symbols from tooling, debuggers, and grep-based searches.
+confidence_floor: high
+tags:
+  - scope
+  - visibility
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  Anonymous namespaces are forbidden. Use `static` linkage for translation-unit-local
+  symbols. Anonymous namespaces hide symbols from tooling and fragment the
+  reader's mental model.
+rationale: |
+  JRENG §325 states: "NO anonymous namespaces allowed". Anonymous namespaces
+  create implicit "private" scopes that are invisible to grep, debuggers, and
+  code browsing tools. Use `static` linkage instead, which is explicit and
+  greppable. Named namespaces with `static` members are also acceptable.
+
+evidence_pattern: |
+  Pattern: `namespace {` without a name, appearing at file scope or inside
+  another namespace. Detected by grep for `namespace\n{` or `namespace {`.
+
+examples:
+  bad:
+    - code: |
+        namespace {
+          void helperFunction();
+          constexpr int kSomeConstant { 42 };
+        }
+  good:
+    - code: |
+        static void helperFunction();
+        static constexpr int kSomeConstant { 42 };
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+  - "contracts/MANIFESTO.md (BLESSED Explicit Encapsulation)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

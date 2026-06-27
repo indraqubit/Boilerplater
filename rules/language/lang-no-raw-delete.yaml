@@ -1,0 +1,57 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: lang-no-raw-delete
+title: "No Raw new or delete"
+domain: language
+
+severity_default: critical
+severity_rationale: |
+  JRENG-CODING-STANDARD.md §245-265 explicitly forbids raw `new` and `delete`.
+  Raw memory management causes leaks, double-frees, and undefined behavior.
+confidence_floor: high
+tags:
+  - safety
+  - ownership
+  - lifetime
+  - jreng-critical
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  Never use raw `new` or `delete`. Use RAII-compliant smart pointers
+  (`std::unique_ptr`, `std::shared_ptr`, `juce::ScopedPointer`) or stack
+  allocation. Raw `new[]` and `malloc` are also forbidden.
+rationale: |
+  JRENG §247 states: "NEVER use raw `new` or `delete` unless absolutely necessary".
+  Raw ownership creates lifetime management burdens that RAII handles automatically.
+  Violations cause memory leaks, double-free errors, and use-after-free bugs.
+  The preferred approach is stack allocation; when heap is needed, use smart pointers.
+
+evidence_pattern: |
+  Pattern: `new <type>`, `new <type>[]`, `delete <ptr>`, `delete[] <ptr>`,
+  or `malloc`/`calloc` appearing in source files. Detected by grep for
+  raw memory allocation keywords.
+
+examples:
+  bad:
+    - code: |
+        void create() {
+          auto* obj = new MyObject();
+          obj->process();
+          delete obj;
+        }
+  good:
+    - code: |
+        void create() {
+          auto obj = std::make_unique<MyObject>();
+          obj->process();
+        }
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

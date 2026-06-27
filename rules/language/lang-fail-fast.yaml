@@ -1,0 +1,59 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: lang-fail-fast
+title: "Fail Fast on Invalid State"
+domain: language
+
+severity_default: critical
+severity_rationale: |
+  Fail-fast is a core JRENG principle. Invalid state must throw immediately,
+  never propagate silently. Violations can cause silent memory corruption.
+confidence_floor: high
+tags:
+  - safety
+  - error-handling
+  - jreng-critical
+depends_on:
+  - blessed-deterministic
+
+description: |
+  Invalid state must be caught at the entry point and throw immediately.
+  Do not silently continue with corrupt data or swallow failures.
+  Use `jassert`, `static_assert`, or explicit exception throwing.
+rationale: |
+  BLESSED Explicit principle states: "Prefer `jassert` over silent fail —
+  invalid state is loud, never swallowed". Fail-fast ensures that bugs are
+  caught at the boundary where they occur, not propagated to cause distant
+  failures. Silent fails make debugging nearly impossible.
+
+evidence_pattern: |
+  Pattern: A function that accepts input and does not validate preconditions
+  before performing operations that could corrupt state. Specifically:
+  returning success when an internal operation failed; continuing after
+  a failed assertion; catching and suppressing an exception without action.
+
+examples:
+  bad:
+    - code: |
+        void process(const Sample& input) {
+          auto result = doWork(input);
+          return;  // Silently ignores result failure
+        }
+  good:
+    - code: |
+        void process(const Sample& input) {
+          jassert(input.isValid());
+          auto result = doWork(input);
+          jassert(result.isValid() && "doWork must produce valid output");
+        }
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+  - "contracts/MANIFESTO.md (BLESSED Deterministic)"
+  - "contracts/MANIFESTO.md (BLESSED Explicit)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

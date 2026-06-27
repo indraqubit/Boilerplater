@@ -1,0 +1,59 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: lang-positive-nesting
+title: "Positive Nesting Only"
+domain: language
+
+severity_default: critical
+severity_rationale: |
+  Hard rule in JRENG-CODING-STANDARD.md §547 (CRITICAL RULES section).
+  Positive nesting is the primary control flow structure for fail-fast.
+confidence_floor: high
+tags:
+  - control-flow
+  - readability
+  - jreng-critical
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  Use nested positive checks instead of inverted conditionals with early returns.
+  Wrap the happy path in progressively indented blocks rather than guarding
+  with negated conditions.
+rationale: |
+  JRENG §547 mandates: "ALWAYS use nested positive checks: `if (valid) { if (ready) { doWork(); } }`
+  — NEVER `if (not valid) return;`". Positive nesting makes the full execution
+  path visible in a single read. The happy path reads top-to-bottom without
+  escaping or returning early.
+
+evidence_pattern: |
+  Pattern: `if (not <condition>)` or `if (!<condition>)` followed by any
+  control flow statement (return, continue, break) that escapes the current scope.
+
+examples:
+  bad:
+    - code: |
+        void process(const Sample& input) {
+          if (!input.isValid()) return;
+          if (!isInitialized()) return;
+          doWork(input);
+        }
+  good:
+    - code: |
+        void process(const Sample& input) {
+          if (input.isValid()) {
+            if (isInitialized()) {
+              doWork(input);
+            }
+          }
+        }
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+  - "contracts/MANIFESTO.md (BLESSED Explicit Encapsulation)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

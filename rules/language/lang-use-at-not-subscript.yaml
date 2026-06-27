@@ -1,0 +1,50 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: lang-use-at-not-subscript
+title: "Use .at() for Container Access"
+domain: language
+
+severity_default: major
+severity_rationale: |
+  JRENG-CODING-STANDARD.md §547 mandates: "ALWAYS use `.at()` for container access".
+  Unchecked `[]` access is undefined behavior if index is invalid.
+confidence_floor: high
+tags:
+  - safety
+  - api-correctness
+depends_on: []
+
+description: |
+  Always use `.at()` for indexed container access. The `[]` operator is
+  forbidden because it exhibits undefined behavior on invalid index.
+  The `.at()` method throws `std::out_of_range` immediately on invalid access.
+rationale: |
+  JRENG §483-508 specifies: "ALWAYS use `.at()` for container access —
+  NEVER `[]`. Fail Fast principle: invalid index throws immediately."
+  The `[]` operator on `std::vector` and `std::array` has undefined behavior
+  when the index is out of bounds. `.at()` throws, making the failure
+  immediate and debuggable rather than silent memory corruption.
+
+evidence_pattern: |
+  Pattern: `<container>[` where `<container>` is a `std::vector`, `std::array`,
+  `std::map`, or similar container. Detected by grep for `[]` following a
+  container-typed variable or expression, excluding `.at()` calls.
+
+examples:
+  bad:
+    - code: |
+        std::vector<int> vec {1, 2, 3};
+        auto value = vec[1];  // Unchecked access
+  good:
+    - code: |
+        std::vector<int> vec {1, 2, 3};
+        auto value = vec.at(1);  // Bounds-checked, throws if invalid
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

@@ -1,0 +1,61 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: lang-no-magic-numbers
+title: "No Magic Numbers"
+domain: language
+
+severity_default: minor
+severity_rationale: |
+  Magic numbers violate BLESSED Explicit and SSOT principles.
+  Unnamed constants make code harder to understand and maintain.
+confidence_floor: medium
+tags:
+  - maintainability
+  - readability
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  All numeric literals must be named constants. Magic numbers appearing inline
+  must be extracted to named constants with semantic names that express intent.
+rationale: |
+  BLESSED Explicit principle states: "No magic values — every constant is named,
+  intent lives in the name". A number like `48000` without context is meaningless;
+  `sampleRate` makes intent clear. BLESSED SSOT principle also applies: if the
+  same magic number appears in multiple places, it must be defined once and
+  referenced everywhere.
+
+evidence_pattern: |
+  Pattern: Numeric literal (integer or floating point) appearing in code
+  that is not assigned to a named constant. Excludes: 0, 1 used as simple
+  counters or neutral values; values in test fixtures; compile-time constants
+  in template parameters.
+
+examples:
+  bad:
+    - code: |
+        void process() {
+          for (int i = 0; i < 1024; ++i) {
+            buffer[i] = buffer[i] * 0.5f;
+          }
+        }
+  good:
+    - code: |
+        static constexpr int bufferSize { 1024 };
+        static constexpr float halfGain { 0.5f };
+        void process() {
+          for (int i = 0; i < bufferSize; ++i) {
+            buffer[i] = buffer[i] * halfGain;
+          }
+        }
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+  - "contracts/MANIFESTO.md (BLESSED Explicit)"
+  - "contracts/MANIFESTO.md (BLESSED SSOT)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

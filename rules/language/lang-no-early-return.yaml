@@ -1,0 +1,54 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: lang-no-early-return
+title: "No Early Returns"
+domain: language
+
+severity_default: critical
+severity_rationale: |
+  Hard rule in JRENG-CODING-STANDARD.md §547 (CRITICAL RULES section).
+  Violations break positive-nesting principle and BLESSED Explicit Encapsulation.
+confidence_floor: high
+tags:
+  - control-flow
+  - readability
+  - jreng-critical
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  Functions must not exit via early `return` statements. Use positive nesting only.
+rationale: |
+  Early returns introduce hidden control flow that violates positive nesting
+  and BLESSED Explicit Encapsulation. JRENG §547 (CRITICAL RULES) mandates
+  fail-fast positive nesting structure. One exit point makes the full execution
+  path visible in a single read.
+
+evidence_pattern: |
+  Pattern: `return <expr>;` at function scope, BEFORE the function's
+  terminating statement. Detected by grep for `return` not in final statement
+  of a function body.
+
+examples:
+  bad:
+    - code: |
+        int foo(int x) {
+          if (x < 0) return -1;
+          return x * 2;
+        }
+  good:
+    - code: |
+        int foo(int x) {
+          const auto result = (x < 0) ? -1 : x * 2;
+          return result;
+        }
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+  - "contracts/MANIFESTO.md (BLESSED Explicit Encapsulation)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28
