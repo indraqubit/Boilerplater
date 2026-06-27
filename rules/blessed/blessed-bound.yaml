@@ -1,0 +1,60 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: blessed-bound
+title: "Bound Ownership"
+domain: blessed
+
+severity_default: critical
+severity_rationale: |
+  BLESSED Bound is critical for memory safety and lifecycle clarity.
+  Unclear ownership leads to leaks, use-after-free, and dangling references.
+confidence_floor: high
+tags:
+  - architecture
+  - coupling
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  Every resource, object, and dependency has exactly one owner.
+  Lifetime is scoped and unambiguous. Acquisition is initialization,
+  release is destruction. No raw owning pointers. No manual cleanup.
+  No ambiguous destruction order.
+rationale: |
+  BLESSED B (Bound) principle: "Clear ownership. Deterministic lifecycle.
+  RAII enforced. Nothing floats free." If you need a `SafePointer` or a
+  lifetime guard, ownership was wrong to begin with. Fix the ownership —
+  the guard disappears. Threads are bound to their context: audio thread
+  owns audio, UI thread owns UI, never crossed.
+
+evidence_pattern: |
+  Pattern: "I'm not sure what outlives what here." Raw owning pointers.
+  Manual cleanup code. `SafePointer` or lifetime guard without clear owner.
+  Cross-thread direct calls.
+
+examples:
+  bad:
+    - code: |
+        // Raw owning pointer, unclear ownership
+        class Owner {
+          OtherClass* other;  // Who deletes this?
+        public:
+          void setOther(OtherClass* o) { other = o; }
+        };
+  good:
+    - code: |
+        // Smart pointer with clear ownership
+        class Owner {
+          std::unique_ptr<OtherClass> other;
+        public:
+          void createOther() { other = std::make_unique<OtherClass>(); }
+        };
+
+source_refs:
+  - "contracts/MANIFESTO.md (BLESSED Bound)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

@@ -1,0 +1,54 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: blessed-stateless
+title: "Stateless Design"
+domain: blessed
+
+severity_default: critical
+severity_rationale: |
+  BLESSED Stateless principle is critical for deterministic behavior.
+  Machinery state causes non-deterministic output and couples logic to history.
+confidence_floor: high
+tags:
+  - architecture
+  - determinism
+depends_on:
+  - blessed-deterministic
+
+description: |
+  Objects are dumb workers. They execute what they are told and hold only
+  transient state. Machinery holds nothing persistent. If the orchestrator
+  needs to ask about state, the design is wrong. State belongs exclusively
+  to the Model.
+rationale: |
+  BLESSED S (Stateless) principle: "Objects execute what they are told.
+  They do not hold opinions about the system, remember what they did last,
+  or track their own history for the orchestrator's benefit."
+  The violation pattern: booleans tracking what a subordinate object is doing.
+  DSP processor parameters are calculation inputs, not machinery state.
+
+evidence_pattern: |
+  Pattern: A boolean flag that tracks what a subordinate object is doing.
+  A getter called by the orchestrator to make a decision. State that lives
+  outside the Model.
+
+examples:
+  bad:
+    - code: |
+        // WRONG — orchestrator tracking object state
+        if (processor.isReady() && !processor.hasProcessed() && processor.inputValid())
+            processor.process();
+  good:
+    - code: |
+        // CORRECT — object manages itself, orchestrator tells
+        processor.process(input);
+
+source_refs:
+  - "contracts/MANIFESTO.md (BLESSED Stateless)"
+  - "contracts/MANIFESTO.md (BLESSED Deterministic)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

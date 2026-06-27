@@ -1,0 +1,57 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: names-no-type-encoding
+title: "No Type Encoding in Names"
+domain: names
+
+severity_default: major
+severity_rationale: |
+  NAMES Rule 2 explicitly forbids type encoding in names. This is a major
+  violation because it creates maintenance burden: type changes require
+  renaming, and redundant type information clutters code.
+confidence_floor: medium
+tags:
+  - naming
+  - maintainability
+depends_on: []
+
+description: |
+  Names must express their role without explicitly using the data type.
+  Do not suffix variable names with type information (Int, String, Array,
+  Ptr, etc.). Type information is already enforced by the compiler and
+  visible in modern IDEs.
+rationale: |
+  NAMES Rule 2: "A name must express its role without explicitly using the
+  data type itself. Type information is already enforced by the compiler and
+  visible in modern IDEs. Encoding types into names adds noise without adding
+  meaning." Examples to avoid: `filesInt`, `FileMgrClass`, `choicesArray`,
+  `xmlPtr`. The name should describe what the construct represents, not
+  how it is stored.
+
+evidence_pattern: |
+  Pattern: Variable or class name containing type keywords: `Int`, `String`,
+  `Array`, `Ptr`, `Vector`, `Map`, `Class`, `Struct`, `Obj`, `Manager` redundant
+  on a class, etc.
+
+examples:
+  bad:
+    - code: |
+        int filesInt;
+        juce::StringArray choicesArray;
+        std::unique_ptr<juce::XmlElement> xmlPtr;
+        class FileMgrClass;
+  good:
+    - code: |
+        int panelHeight;
+        juce::StringArray choices;
+        std::unique_ptr<juce::XmlElement> layout;
+        class Manager;
+
+source_refs:
+  - "contracts/NAMES.md (Rule 2)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

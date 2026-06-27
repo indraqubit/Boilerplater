@@ -1,0 +1,55 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: blessed-explicit-encapsulation
+title: "Explicit Encapsulation"
+domain: blessed
+
+severity_default: critical
+severity_rationale: |
+  BLESSED Encapsulation is a foundational principle. It establishes the
+  boundary between objects and their callers. Violations cascade into all
+  other BLESSED principles.
+confidence_floor: high
+tags:
+  - architecture
+  - encapsulation
+depends_on: []
+
+description: |
+  Objects must have clear single responsibility. Callers must not inspect
+  or track object state. Communication is unidirectional: callers tell
+  objects to act, objects manage their own state. No getter without proven
+  external caller. No manual boolean flags tracking subordinate state.
+rationale: |
+  BLESSED E (Encapsulation) principle: "Objects are ignorant by design.
+  They know nothing about the world outside their one job. The orchestrator
+  tells — it never inspects an object's state to make decisions on its behalf."
+  Four rules: (1) One responsibility. (2) Private by default. (3) Objects
+  manage their own state. (4) Tell, don't ask. Layer topology is strictly
+  unidirectional: lower layers never know about higher layers.
+
+evidence_pattern: |
+  Pattern 1: A getter called by a caller to make a decision for the object.
+  Pattern 2: An object that knows about another object's domain.
+  Pattern 3: A layer that includes a header from a layer above it.
+  Pattern 4: A manual boolean where a listener pattern already exists.
+
+examples:
+  bad:
+    - code: |
+        // Caller tracking subordinate state
+        if (processor.isReady() && !processor.hasProcessed())
+            processor.process();
+  good:
+    - code: |
+        // Caller tells, object manages itself
+        processor.process(input);
+
+source_refs:
+  - "contracts/MANIFESTO.md (BLESSED Encapsulation)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

@@ -1,0 +1,53 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: names-no-helper-suffix
+title: "No Helper Suffix"
+domain: names
+
+severity_default: advisory
+severity_rationale: |
+  The suffix "Helper" or similar indicates a role that should be explicit
+  in the domain vocabulary. Advisory because helper classes are often
+  symptoms of decomposition issues rather than naming issues alone.
+confidence_floor: medium
+tags:
+  - naming
+  - anti-pattern
+depends_on: []
+
+description: |
+  Avoid suffixes like `Helper`, `Utils`, `Manager` (on non-manager classes)
+  that indicate vague roles. If a class provides utility functions,
+  its name should describe the specific utility domain. If it coordinates,
+  name it after what it coordinates.
+rationale: |
+  NAMES Rule 1 and 3: Names should express semantic role, not implementation
+  pattern. A `Helper` class is a smell: it suggests the decomposition
+  does not reflect the domain. `FormatHelper` is vague; `XmlFormatter`
+  or `LayoutEngine` is specific. The domain should supply the vocabulary.
+
+evidence_pattern: |
+  Pattern: Class name ending with `Helper`, `Utils`, `Base`, `Impl` where
+  the role is vague and the class could be better decomposed or named
+  according to domain terms.
+
+examples:
+  bad:
+    - code: |
+        class AudioHelper {};
+        class StringUtils {};
+        class BaseProcessor {};
+  good:
+    - code: |
+        class AudioBufferFormatter {};
+        class StringTransformer {};
+        class AudioProcessor {};
+
+source_refs:
+  - "contracts/NAMES.md (Rule 1, Rule 3)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

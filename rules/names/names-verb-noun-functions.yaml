@@ -1,0 +1,52 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: names-verb-noun-functions
+title: "Verb-Noun Function Naming"
+domain: names
+
+severity_default: advisory
+severity_rationale: |
+  NAMES Rule 1 specifies grammatical correctness for names. Functions use verbs.
+  Advisory because violations are readability issues, not correctness bugs.
+confidence_floor: medium
+tags:
+  - naming
+  - readability
+depends_on: []
+
+description: |
+  Function names must use verbs (actions). Class and struct names must use
+  nouns (things). Booleans should prefix verbs or use adjectives. This
+  creates readable code that expresses intent clearly.
+rationale: |
+  NAMES Rule 1: "Word classes must match their role. Use nouns for things,
+  verbs for actions. The grammatical form of the name must reflect what
+  the construct does in the program." Functions perform actions; they should
+  be named with verbs: `buildInterface()`, `applyImages()`, `isValidParameterID()`.
+  Classes represent things: `Manager`, `ProcessorChain`, `Descriptor`.
+
+evidence_pattern: |
+  Pattern: A function that returns a noun or describes a thing rather than
+  an action. A class named with a verb. A boolean named without the is/should/has pattern.
+
+examples:
+  bad:
+    - code: |
+        class Initialize {};  // Class is noun, should be verb? No — this is wrong
+        void interface();     // Noun as function name
+        void data();          // Noun as function name
+  good:
+    - code: |
+        class Manager {};
+        void buildInterface();
+        void applyImages();
+        bool isValidParameterID();
+
+source_refs:
+  - "contracts/NAMES.md (Rule 1)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

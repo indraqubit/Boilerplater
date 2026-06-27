@@ -1,0 +1,52 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: blessed-single-source-of-truth
+title: "Single Source of Truth"
+domain: blessed
+
+severity_default: critical
+severity_rationale: |
+  BLESSED SSOT is a foundational architectural principle.
+  Shadow state creates divergence that is extremely difficult to debug.
+confidence_floor: high
+tags:
+  - architecture
+  - state
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  Every concept, piece of logic, and data structure must be defined in exactly
+  one place. All other parts of the system reference that single definition.
+  Shadow state — the same truth existing in two places — is a critical violation.
+rationale: |
+  BLESSED S (SSOT) principle: "Declare once. Reference everywhere. DRY."
+  The primary violation is shadow state: the same truth existing in two places
+  that can drift. Examples: `isActive` mirroring what Model already knows;
+  `cachedGain` shadowing the APVTS parameter. Shadow state feels helpful until
+  the two copies disagree.
+
+evidence_pattern: |
+  Pattern: Two variables that represent the same thing. Logic duplicated
+  across two files. A hardcoded value that appears more than once.
+  A mirrored boolean that tracks what a parameter already represents.
+
+examples:
+  bad:
+    - code: |
+        bool isActive;       // mirrors what Model already knows
+        int currentIndex;    // duplicates what the container owns
+        float cachedGain;   // shadows the APVTS parameter
+  good:
+    - code: |
+        // State lives in APVTS (SSOT). Processors hold calculation inputs.
+        // APVTS is the single truth; processor values are synced working copies.
+
+source_refs:
+  - "contracts/MANIFESTO.md (BLESSED SSOT)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

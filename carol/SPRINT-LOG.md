@@ -158,6 +158,90 @@
 
 <!-- Actual sprint entries go here, written by PRIMARY agents -->
 
+## Sprint 2: Boilerplater v1 Architectural Refactor ✅
+
+**Date:** 2026-06-28
+**Duration:** ~30 minutes (delegated phases)
+
+### Agents Participated
+- COUNSELOR: Strategic analysis, SPEC.md + PLAN.md authoring
+- BRAINSTORMER: Pre-flight research, RFC production
+- Pathfinder: Repository discovery
+- Librarian: External pattern research (Semgrep, LangGraph, ESLint)
+- Engineer: Phase execution (6 phases)
+- Auditor: Exit gate validation (5 gates)
+
+### Files Modified (60+ total)
+- `SPEC.md` — created (full specification, 12 sections, 7 goals, 10 OQ resolved)
+- `PLAN.md` — created (6 phases, phase tracker, exit gates)
+- `ARCHITECTURE.md` — created (descriptive mirror of v1 implementation)
+- `contracts/JRENG-CODING-STANDARD.md` — symlink
+- `contracts/MANIFESTO.md` — symlink
+- `contracts/NAMES.md` — symlink
+- `rules/language/lang-no-early-return.yaml` — created (and 6 more)
+- `rules/language/lang-positive-nesting.yaml` — created
+- `rules/language/lang-no-anonymous-namespace.yaml` — created
+- `rules/language/lang-fail-fast.yaml` — created
+- `rules/language/lang-use-at-not-subscript.yaml` — created
+- `rules/language/lang-no-magic-numbers.yaml` — created
+- `rules/language/lang-no-raw-delete.yaml` — created
+- `rules/blessed/blessed-explicit-encapsulation.yaml` — created (and 6 more)
+- `rules/blessed/blessed-single-source-of-truth.yaml` — created
+- `rules/blessed/blessed-stateless.yaml` — created
+- `rules/blessed/blessed-deterministic.yaml` — created
+- `rules/blessed/blessed-lean.yaml` — created
+- `rules/blessed/blessed-bound.yaml` — created
+- `rules/blessed/blessed-encapsulation.yaml` — created
+- `rules/names/names-verb-noun-functions.yaml` — created (and 6 more)
+- `rules/names/names-no-type-encoding.yaml` — created (severity: major override)
+- `rules/names/names-cognitive-load.yaml` — created
+- `rules/names/names-no-getter-prefix.yaml` — created
+- `rules/names/names-no-helper-suffix.yaml` — created
+- `rules/names/names-domain-terms.yaml` — created
+- `rules/names/names-no-comments-needed.yaml` — created
+- `rules/layout/layout-includes-order.yaml` — created (and 2 more)
+- `rules/layout/layout-brace-style.yaml` — created
+- `rules/layout/layout-line-length.yaml` — created
+- `skills/compliance/audit.md` — created (compliance_orchestrator)
+- `skills/compliance/language.md` — created (specialist)
+- `skills/compliance/blessed.md` — created (specialist)
+- `skills/compliance/names.md` — created (specialist)
+- `skills/compliance/layout.md` — created (specialist)
+- `skills/adoption/discover.md` — created
+- `skills/adoption/curate.md` — created
+- `skills/adoption/filter.md` — created
+- `skills/jreng_compliance/SKILL.md` — converted to symlink (alias)
+- `skills/jreng_compliance/SKILL.v0-deprecated.md` — preserved with header
+- `capabilities/README.md` — created (extension point contract)
+- `templates/report.md` — created
+- `templates/patch.md` — created
+- `templates/refactor.md` — created
+- `templates/redesign.md` — created
+- `reports/.gitignore` — created
+- `reports/history/.gitkeep` — created
+- `reports/latest.json` — created
+- `examples/sample-report.md` — created
+- `README.md` — modified (deprecation + vendor-agnostic sections)
+
+### Alignment Check
+- [x] BLESSED principles followed (Explicit Encapsulation via contracts/, Lean via small rules, SSOT via contracts/ + adoption pipeline, Stateless via read-only invariant, Bound via domain folders)
+- [x] NAMES.md adhered (semantic IDs, no type encoding, verb-noun where applicable)
+- [x] MANIFESTO.md principles applied (B/L/E/S/S/E/D all represented in blessed/ rules + adoption filter + contracts/ layer)
+
+### Problems Solved
+- Single-skill monolith → modular 5-file compliance skill set + 3-file adoption subagent
+- Rules → explicit IDs with domain prefixes (lang-, blessed-, names-, layout-)
+- Binary verdict → 5-tier with two-dimensional scoring (severity score + architectural triggers)
+- Implicit contracts → explicit contracts/ abstraction layer
+- Implicit retention → user-managed baseline + history
+- Single-vendor risk → vendor-agnostic core with multi-vendor examples
+
+### Debts Paid
+None — clean v1 refactor, no pre-existing debts touched.
+
+### Debts Deferred
+None — no items pushed to DEBT.md during this sprint.
+
 ---
 
 **End of SPRINT-LOG.md Template**

@@ -1,0 +1,55 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: names-domain-terms
+title: "Use Domain Terms"
+domain: names
+
+severity_default: advisory
+severity_rationale: |
+  Domain-specific vocabulary creates consistency and reduces cognitive
+  overhead. Advisory because technical synonyms are sometimes necessary
+  and domain terms evolve.
+confidence_floor: low
+tags:
+  - naming
+  - domain
+depends_on: []
+
+description: |
+  Use consistent terminology from the problem domain. When the same
+  concept appears in different parts of the code, it should use the same
+  name. If you use `get` for retrieval in one place, do not switch to
+  `fetch` or `retrieve` elsewhere. Match the established domain vocabulary.
+rationale: |
+  NAMES Rule 5 (Consistency): "When the same concept appears in different
+  parts of the code, it should use the same naming convention." Domain
+  terms provide the vocabulary. Within an MVC architecture, `Model` is
+  correct even though it encodes type information (Rule 2 exception:
+  domain context overrides type encoding when the type name is the
+  established convention).
+
+evidence_pattern: |
+  Pattern: Inconsistent verb forms for similar operations (get/fetch/retrieve).
+  Inconsistent pluralization for collections. Mixing domain synonyms
+  without clear rationale.
+
+examples:
+  bad:
+    - code: |
+        juce::String getProductName() const noexcept;
+        juce::String fetchVersionString() const noexcept;  // Inconsistent
+        juce::String retrieveProductWebsite() const noexcept;  // Inconsistent
+  good:
+    - code: |
+        juce::String getProductName() const noexcept;
+        juce::String getVersionString() const noexcept;  // Consistent get-
+        juce::String getProductWebsite() const noexcept;
+
+source_refs:
+  - "contracts/NAMES.md (Rule 5)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

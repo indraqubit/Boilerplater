@@ -1,0 +1,52 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: layout-line-length
+title: "Line Length Limit"
+domain: layout
+
+severity_default: minor
+severity_rationale: |
+  Long lines impair readability on standard displays and make side-by-side
+  diffing difficult. Minor severity because modern displays can accommodate
+  longer lines and refactoring purely for line length has cost.
+confidence_floor: low
+tags:
+  - layout
+  - formatting
+depends_on: []
+
+description: |
+  Lines should generally not exceed 100-120 characters. Long lines should
+  be broken across multiple lines using proper indentation and alignment.
+  This aids readability and makes side-by-side diffing practical.
+rationale: |
+  Line length limits are a readability heuristic. Modern displays are
+  wider, but the limit serves a purpose: it forces decomposition and
+  prevents deeply nested code. When breaking a line, align with the
+  start of the expression or use hanging indent per JRENG continuation
+  style.
+
+evidence_pattern: |
+  Pattern: Line exceeding 100 characters. The heuristic is approximate;
+  judgment is allowed for URLs, string literals, and other cases where
+  breaking would harm readability more than help.
+
+examples:
+  bad:
+    - code: |
+        void buildAndAttachComponents(juce::Component* parentView, Descriptors& componentDescriptors, Registry& componentRegistry, Model& dataModel) {}
+  good:
+    - code: |
+        void buildAndAttachComponents(juce::Component* parentView,
+                                      Descriptors& componentDescriptors,
+                                      Registry& componentRegistry,
+                                      Model& dataModel) {}
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

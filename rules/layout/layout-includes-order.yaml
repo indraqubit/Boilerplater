@@ -1,0 +1,51 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: layout-includes-order
+title: "Include Directive Ordering"
+domain: layout
+
+severity_default: minor
+severity_rationale: |
+  Include ordering affects compilation performance and transitive dependency
+  clarity. Minor severity because violations do not affect correctness.
+confidence_floor: medium
+tags:
+  - layout
+  - formatting
+depends_on: []
+
+description: |
+  Include directives should be ordered with system/library headers before
+  project headers, and sorted alphabetically within each group. This
+  improves compilation performance and makes dependency relationships clear.
+rationale: |
+  Consistent include ordering makes the dependency graph readable. System
+  headers change rarely and are cached longer. Project headers should
+  ideally be self-contained (no order dependence). Alphabetical sorting
+  prevents duplicate includes and makes the list maintainable.
+
+evidence_pattern: |
+  Pattern: A project header `#include` appearing before a system header
+  in a source file. Alphabetical ordering violations within the same group.
+  Missing required includes (header not including what it uses).
+
+examples:
+  bad:
+    - code: |
+        #include "MyHeader.h"  // Project header first
+        #include <vector>      // System header second
+        #include <string>
+  good:
+    - code: |
+        #include <vector>
+        #include <string>
+        #include "MyHeader.h"
+
+source_refs:
+  - "contracts/JRENG-CODING-STANDARD.md"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

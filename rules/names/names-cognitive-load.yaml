@@ -1,0 +1,55 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: names-cognitive-load
+title: "Minimize Cognitive Load"
+domain: names
+
+severity_default: advisory
+severity_rationale: |
+  NAMES Rule 4 emphasizes clarity over brevity. Advisory because violations
+  are readability concerns that accumulate over time rather than immediate bugs.
+confidence_floor: low
+tags:
+  - naming
+  - complexity
+depends_on: []
+
+description: |
+  Prefer longer descriptive names that are unambiguous and self-documented.
+  Short names might be easier to type but harder to understand during
+  debugging and review. Every name should be self-explanatory without
+  requiring comments to explain.
+rationale: |
+  NAMES Rule 4: "Longer descriptive names are unambiguous and self-documented,
+  potentially reducing unnecessary comments. Compilers don't care how long
+  your variables are named. If everything is legal and sane, it will work.
+  But when it doesn't, humans need to read, review, and debug." The key
+  practice: describe the content, not the container. `panelHeight` is clearer
+  than `ph`. `isPresetDirty` is clearer than `flag`.
+
+evidence_pattern: |
+  Pattern: Abbreviated variable names (single letter, two letters) in
+  non-trivial scope. Names requiring comments to explain. Cryptic names
+  that obscure intent.
+
+examples:
+  bad:
+    - code: |
+        void f(juce::Component* c, Descriptors& d) {  // What do these mean?
+          applyRules(c, d);
+        }
+  good:
+    - code: |
+        void buildAndAttachComponents(juce::Component* parentView,
+                                      Descriptors& componentDescriptors) {
+          applyRules(parentView, componentDescriptors);
+        }
+
+source_refs:
+  - "contracts/NAMES.md (Rule 4)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

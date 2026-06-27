@@ -1,0 +1,61 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: blessed-encapsulation
+title: "Encapsulation Boundaries"
+domain: blessed
+
+severity_default: critical
+severity_rationale: |
+  BLESSED Encapsulation establishes the fundamental boundary between
+  objects. Violations break the layer topology and create implicit coupling.
+confidence_floor: high
+tags:
+  - architecture
+  - encapsulation
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  Layer topology is strictly unidirectional. Lower layers never know about
+  higher layers. No `#include "HigherLayer.h"` in a lower layer. Communication
+  flows through explicit APIs only. Objects manage their own state; callers
+  do not track flags on behalf of objects.
+rationale: |
+  BLESSED E (Encapsulation): "Lower layers never know about higher layers.
+  No `#include "HigherLayer.h"` in a lower layer. No reverse dependencies.
+  Communication flows through explicit APIs only." If the architecture uses
+  listeners, use listeners. A manual boolean flag where a listener pattern
+  already exists is not a solution — it is a symptom of not reading the
+  architecture.
+
+evidence_pattern: |
+  Pattern: `#include` directive where the included header belongs to a layer
+  above the current one in the architectural hierarchy. A listener pattern
+  bypassed by manual state tracking. A layer that imports another layer's
+  header in the wrong direction.
+
+examples:
+  bad:
+    - code: |
+        // DSP processor (low layer) knows about PluginProcessor (high layer)
+        class DSPProcessor {
+          PluginProcessor* processor;  // Reverse dependency
+        };
+  good:
+    - code: |
+        // PluginProcessor (high) owns ProcessorChain (low)
+        // DSP processors are dumb: they receive parameters and calculate
+        class DSPProcessor {
+          void setParameters(const DSPParams& p) { params = p; }
+        private:
+          DSPParams params;
+        };
+
+source_refs:
+  - "contracts/MANIFESTO.md (BLESSED Encapsulation)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

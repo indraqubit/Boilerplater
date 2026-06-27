@@ -1,0 +1,59 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: blessed-deterministic
+title: "Deterministic Behavior"
+domain: blessed
+
+severity_default: critical
+severity_rationale: |
+  BLESSED Deterministic is the health metric of the architecture.
+  Non-determinism is always a symptom of another BLESSED violation.
+confidence_floor: high
+tags:
+  - architecture
+  - determinism
+depends_on: []
+
+description: |
+  The same input must always yield the same output throughout the entire
+  data flow and processing chain. Non-determinism is always a symptom,
+  never a root cause. If output varies, a BLESSED principle above was violated.
+rationale: |
+  BLESSED D (Deterministic) principle: "D is not a principle you implement.
+  It is what you get when you follow BLESSE correctly." D is the debug protocol:
+  non-deterministic output → trace data flow → find which BLESSE was violated →
+  fix the principle violation, not the symptom. Enforcement: `jassert` at
+  boundaries catches violations early; unit tests prove determinism formally.
+
+evidence_pattern: |
+  Symptom table from BLESSED: Hidden state producing different results (S-Stateless);
+  Shadow state that drifted (S-SSOT); Something mutated outside its owner (B);
+  Implicit dependency not visible (E-Explicit); Object doing more than its job (E-Encapsulation).
+
+examples:
+  bad:
+    - code: |
+        // Hidden mutable state causes different output per call
+        class Processor {
+          float lastResult;  // Remembers history
+        public:
+          float process(float input) {
+            lastResult = input * multiplier;
+            return lastResult + lastResult;  // Depends on previous call
+          }
+        };
+  good:
+    - code: |
+        // Pure calculation, no hidden state
+        float process(float input, float multiplier) {
+          return input * multiplier * 2.0f;
+        }
+
+source_refs:
+  - "contracts/MANIFESTO.md (BLESSED Deterministic)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

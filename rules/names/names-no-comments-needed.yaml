@@ -1,0 +1,52 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: names-no-comments-needed
+title: "Self-Documenting Names"
+domain: names
+
+severity_default: advisory
+severity_rationale: |
+  NAMES Rule 4 (Clarity over Brevity) implies that good names eliminate
+  the need for explanatory comments. Advisory because comments can still
+  provide valuable context for rationale, not just what the code does.
+confidence_floor: low
+tags:
+  - naming
+  - self-documentation
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  Names should be self-explanatory. If a comment is needed to explain what
+  a variable or function does, the name is insufficient. Prefer semantic
+  names that express intent without requiring comments for basic understanding.
+rationale: |
+  NAMES Rule 4: "If everything is legal and sane, it will work. But when
+  it doesn't, humans need to read, review, and debug. Short names might
+  be easier to type, but adding extra comments to explain them just adds
+  noise." A name like `isPresetDirty` is self-documenting: it tells
+  readers exactly what it represents without needing a comment.
+
+evidence_pattern: |
+  Pattern: A comment immediately following a declaration that explains
+  what the declaration does, rather than why or what constraints apply.
+  `int x; // counter` is a name failure; `int sampleCount;` is self-documenting.
+
+examples:
+  bad:
+    - code: |
+        // This flag indicates whether the preset has been modified
+        bool flag;  // Name does not match comment
+  good:
+    - code: |
+        bool isPresetDirty;  // Self-documenting, no comment needed
+
+source_refs:
+  - "contracts/NAMES.md (Rule 4)"
+  - "contracts/MANIFESTO.md (BLESSED Explicit)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

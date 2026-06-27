@@ -1,0 +1,59 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: blessed-lean
+title: "Lean Design"
+domain: blessed
+
+severity_default: major
+severity_rationale: |
+  BLESSED Lean enforces quantitative bounds that prevent architectural decay.
+  God objects and long functions are the primary vehicles for principle violations.
+confidence_floor: medium
+tags:
+  - architecture
+  - simplicity
+depends_on: []
+
+description: |
+  300 lines per file, 30 lines per function, 3 branches max.
+  These are smell detectors, not arbitrary limits. Crossing them means stop
+  and ask why. The answer is almost always wrong decomposition.
+rationale: |
+  BLESSED L (Lean) principle: "300/30/3. Quantity enforced. God objects forbidden."
+  The 3-branch rule is the sharpest: more than 3 if/else or switch cases means
+  you are encoding a decision table in imperative code. Replace with direct lookup.
+  YAGNI bounds what gets created at all; 300/30/3 bounds what exists now.
+  Lean is about quantity; balanced decomposition is how you achieve it.
+
+evidence_pattern: |
+  Pattern: File >300 lines (excluding documentation). Function >30 lines.
+  More than 3 sequential if/else or switch branches. A function that needs
+  a scroll to read. An abstraction with one concrete implementation.
+
+examples:
+  bad:
+    - code: |
+        // Function with >3 branches, should be a lookup table
+        int getStatusCode(int type) {
+          if (type == 1) return 100;
+          if (type == 2) return 200;
+          if (type == 3) return 300;
+          if (type == 4) return 400;
+          if (type == 5) return 500;
+          return 0;
+        }
+  good:
+    - code: |
+        static constexpr int statusCodes[] { 100, 200, 300, 400, 500 };
+        int getStatusCode(int type) {
+          return (type >= 1 && type <= 5) ? statusCodes[type - 1] : 0;
+        }
+
+source_refs:
+  - "contracts/MANIFESTO.md (BLESSED Lean)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28

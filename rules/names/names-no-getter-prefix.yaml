@@ -1,0 +1,59 @@
+schema_version: 1
+rule_version: 1.0
+status: stable
+
+id: names-no-getter-prefix
+title: "Avoid Getter Prefix"
+domain: names
+
+severity_default: advisory
+severity_rationale: |
+  NAMES does not mandate getter-less design, but getter prefixes often
+  indicate encapsulation violations (BLESSED E). Advisory because getters
+  can be appropriate when external callers genuinely need state access.
+confidence_floor: medium
+tags:
+  - naming
+  - encapsulation
+depends_on:
+  - blessed-explicit-encapsulation
+
+description: |
+  The prefix `get` on function names often indicates a Tell-don't-Ask
+  violation. Objects should manage their own state; callers should not
+  retrieve internal state to make decisions on the object's behalf.
+  However, getters can be appropriate when the caller genuinely needs
+  a value, not to make decisions for the object.
+rationale: |
+  BLESSED E (Encapsulation) rule: "No getter without a proven external caller.
+  Dead getters are dead code." A function called `getState()` where the caller
+  then makes decisions based on that state is a Tell-don't-Ask violation.
+  The object should be told what to do, not asked for its state. Consider
+  whether the caller is making a decision that belongs inside the object.
+
+evidence_pattern: |
+  Pattern: Function named `getSomething()` followed by conditional logic
+  based on the returned value in the caller. A getter called by orchestrator
+  to track subordinate object state.
+
+examples:
+  bad:
+    - code: |
+        // Orchestrator asking and deciding for object
+        if (processor.getIsReady()) {
+          processor.process();
+        }
+  good:
+    - code: |
+        // Object manages itself
+        processor.process();
+        // OR: if the object needs to validate before acting
+        processor.processIfReady();  // Tell, don't ask
+
+source_refs:
+  - "contracts/NAMES.md"
+  - "contracts/MANIFESTO.md (BLESSED Encapsulation)"
+
+author: ARCHITECT
+created: 2026-06-28
+updated: 2026-06-28
