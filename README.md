@@ -36,34 +36,93 @@ See [SPEC.md](./SPEC.md) for full specification, [ARCHITECTURE.md](./ARCHITECTUR
 
 ---
 
+## Features
+
+### Core Capabilities
+
+- **Read-Only Auditing** — Scans codebase without modifying source code. All findings go to `reports/` directory. No auto-fixes, no hidden mutations.
+
+- **Multi-Domain Rule Engine** — 24 rules across 4 domains (`language`, `blessed`, `names`, `layout`). Each rule has explicit ID, severity tier, confidence score, and source references.
+
+- **Two-Dimensional Verdict** — 5-tier scale (PASS / PATCH / REFACTOR / MAJOR / REDESIGN) computed from:
+  - **Severity score** — weighted sum of findings (critical×10 + major×5 + minor×2 + advisory×1 + suggestion×0.5)
+  - **Architectural triggers** — god object, circular ownership, multiple sources of truth, state duplication, hidden mutation, cyclic dependency
+  - **Any trigger fires → REDESIGN** (regardless of severity score)
+
+- **Dynamic Domain Discovery** — Orchestrator scans `rules/*` at runtime. Adding `rules/dsp/` or `rules/audio-thread/` requires zero orchestrator changes.
+
+- **Conditional Adoption Subagent** — Invoked only on critical/major findings (~10% of audits). Saves context window. Three-step pipeline: discover → curate → filter.
+
+- **Contract Abstraction Layer** — `contracts/` indirection hides CAROL framework symlink details. Rule files reference `contracts/` paths, implementation-agnostic.
+
+- **Vendor-Agnostic Core** — Pure markdown + YAML. Works with Claude Code, Gemini, ChatGPT, Codex, Cursor, Roo, Cline. No vendor-specific syntax or APIs.
+
+- **User-Managed Retention** — Audit history in `reports/history/YYYY-MM-DD/`. `reports/latest.json` symlink points to most recent baseline. No auto-deletion.
+
+- **Extensibility Surface** — `capabilities/` directory reserved for future features (SARIF, LSP, semantic-index, vector-cache). No v1 implementation, staged for v1.1+.
+
+### Rule Domains
+
+| Domain | Rules | Focus | Default Severity |
+|---|---|---|---|
+| `language/` | 7 | C++ mechanical rules (no early returns, fail-fast, RAII, bounds checking) | critical |
+| `blessed/` | 7 | BLESSED principles (Explicit Encapsulation, SSOT, Stateless, Bound, Deterministic, Lean) | critical |
+| `names/` | 7 | Semantic naming (no type encoding, verb-noun functions, cognitive load) | advisory |
+| `layout/` | 3 | Include order, brace style, line length | minor |
+
+---
+
 ## How to Use
 
 Boilerplater's audit skill is a markdown file (`skills/compliance/audit.md`). Load it into any LLM tool that can read markdown, point it at your codebase, and the orchestrator takes over.
 
-### Claude Code
+### Step-by-Step Workflow
+
+1. **Load the skill** — Invoke `compliance_orchestrator` in your LLM tool
+2. **Point at codebase** — Specify target directory or files to scan
+3. **Review report** — Read `reports/history/YYYY-MM-DD/codebase_analysis.md`
+4. **Apply fixes** — Manually implement suggested diffs (Boilerplater is read-only)
+5. **Iterate** — Re-run audit to verify compliance
+
+### Vendor-Specific Invocation
+
+#### Claude Code
 ```
 @skills/compliance/audit.md
 ```
+Then: *"Run compliance audit on this codebase."*
 
-### Gemini / Antigravity
+#### Gemini / Antigravity
 Load `skills/compliance/audit.md` as context, then run.
 
-### ChatGPT / Codex
+#### ChatGPT / Codex
 Upload or paste `skills/compliance/audit.md`, then run.
 
-### Cursor / Roo / Cline
+#### Cursor / Roo / Cline
 Reference `skills/compliance/audit.md` from your project's `.cursorrules` or equivalent.
 
 No vendor is "first-class" — all are equally supported. (Legacy note: v0 used Antigravity's `~/.gemini/config/skills.json` registration; this is no longer required.)
 
-### Invocation Example
-> *"Run Boilerplater compliance audit on this codebase."*
->
-> or
->
-> *"Audit this project using `compliance_orchestrator`."*
+### Expected Output
 
-The agent will discover `skills/compliance/audit.md`, scan your active codebase in strict read-only mode, and write the report to `reports/history/YYYY-MM-DD/codebase_analysis.md`.
+The agent will:
+1. Discover domains by scanning `rules/*` directories
+2. Load all YAML rule files (validates schema, rejects malformed rules)
+3. Dispatch specialists in parallel (language, blessed, names, layout)
+4. Merge findings by (file, line, rule_id) triple
+5. Check adoption gate (critical/major + opt-in → invoke adoption pipeline)
+6. Compute verdict from severity score + architectural triggers
+7. Write report to `reports/history/YYYY-MM-DD/codebase_analysis.md`
+8. Update `reports/latest.json` baseline pointer
+
+Report contains:
+- Summary table (files scanned, total findings, severity score, verdict)
+- Findings by severity histogram
+- Detailed findings (rule ID, location, evidence, reason, suggested fix, source refs)
+- Architectural triggers fired (if any)
+- Adoption suggestions (if triggered)
+- Baseline delta (vs previous audit)
+- ROI estimate
 
 ---
 
